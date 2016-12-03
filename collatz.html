@@ -1,36 +1,162 @@
-<!-- Código para construir un árbol con los distintos términos obtenidos -->
+<!DOCTYPE>
+
 <html>
-  <head>
-    <script type="text/javascript">
 
-      var arbor = {"nodes":{}, "edges":{}};
+	<head>
+    <!-- Based on https://gist.github.com/maxkfranz/e52c2fbc0b09edd6ec46 -->
+		<title>Collatz</title>
+		<meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1, maximum-scale=1">
 
-      function collatz(n){
-        if( n == 1){
-          return [n];
-        } else {
-          return [n].concat(collatz(n%2==0? n/2 : 3*n+1));
-        }
+		<script src="http://code.jquery.com/jquery-2.0.3.min.js"></script>
+		<script src="http://cytoscape.github.io/cytoscape.js/api/cytoscape.js-latest/cytoscape.min.js"></script>
+
+		<!-- for testing with local version of cytoscape.js -->
+		<!--<script src="../cytoscape.js/build/cytoscape.js"></script>-->
+
+		<script src="https://cdn.rawgit.com/cpettitt/dagre/v0.7.4/dist/dagre.min.js"></script>
+		<script src="https://cdn.rawgit.com/cytoscape/cytoscape.js-dagre/1.1.2/cytoscape-dagre.js"></script>
+
+		<style>
+			body {
+				font-family: helvetica;
+				font-size: 14px;
+			}
+
+			#cy {
+				width: 100%;
+				height: 100%;
+				position: absolute;
+				left: 0;
+				top: 0;
+				z-index: 999;
+			}
+
+			h1 {
+				opacity: 0.5;
+				font-size: 1em;
+			}
+		</style>
+
+		<script>
+		var BreakException = {};
+
+    var arbor = {"nodes":[], "edges":[]};
+
+		function existsNode(id) {
+			var val = false;
+			try{
+				arbor['nodes'].forEach((v)=>{
+					if (parseInt(v.data.id) == id){
+						val =  true;
+						throw BreakException;
+					}
+				});
+			} catch(e){}
+			return val;
+		}
+
+		function existsEdge(id) {
+			var val = false;
+			try{
+				arbor['edges'].forEach((v)=>{
+					if(v.data.id === id)
+						val =  true;
+						throw BreakException;
+				});
+			} catch (e) {}
+			return val;
+		}
+
+    function collatz(n){
+			if(existsNode(n)){
+				return [n];
+			}
+      if( n == 1){
+        return [n];
+      } else {
+        return [n].concat(collatz(n%2==0? n/2 : 3*n+1));
       }
-
-      function addToArbor(collatz){
-        collatz.forEach((v, i)=>{
-          if(!arbor['nodes'][v]){
-          arbor['nodes'][v] = {};
-          if(collatz[i+1])
-            console.log(v, '->', collatz[i+1]);
-            if(arbor['edges'][v]){
-                arbor['edges'][v][collatz[i+1]] = { "weight": 1 };
-            } else {
-              arbor['edges'][v] = {};
-              arbor['edges'][v][collatz[i+1]] =  {"weight": 1} ;
+    }
+    function addToArbor(collatz){
+      collatz.forEach((v, i)=>{
+        if(!existsNode(v)){
+          // console.log("Add node ", v, " with weight ", collatz.length - i);
+          arbor.nodes = arbor.nodes.concat({data: {id: v, weight:( collatz.length - i)}});
+          if(collatz[i+1]){
+            var id = v+'"'+collatz[i+1];
+            if(!existsEdge(id)){
+              arbor['edges'] = arbor['edges'].concat({data : {'id': id, weight: 0, source: v, target: collatz[i+1]}});
             }
           }
-        });
-      }
+        }
+      });
+    }
 
-    </script>
-  </head>
-  <body>
-  </body>
+    function showTree(){
+
+      		$(function(){
+
+      			var cy = window.cy = cytoscape({
+      				container: document.getElementById('cy'),
+
+              boxSelectionEnabled: false,
+              autounselectify: true,
+
+      				layout: {
+      					name: 'dagre'
+      				},
+
+      				style: [
+      					{
+      						selector: 'node',
+      						style: {
+      							'content': 'data(id)',
+      							'text-opacity': 0.5,
+      							'text-valign': 'center',
+      							'text-halign': 'right',
+      							'background-color': '#11479e'
+      						}
+      					},
+      					{
+      						selector: 'edge',
+      						style: {
+      							'width': 4,
+      							'target-arrow-shape': 'triangle',
+      							'line-color': '#9dbaea',
+      							'target-arrow-color': '#9dbaea',
+      							'curve-style': 'bezier'
+      						}
+      					}
+      				],
+
+      				elements: arbor.valueOf(),
+      			});
+
+      		});
+    }
+
+    function genTreeFor(n){
+      arbor = {"nodes":[], "edges":[]};
+       for(var i = n; i >= 1; i--){
+    		 var coll = collatz(i);
+    		 addToArbor(coll);
+    	 }
+       showTree();
+    }
+
+    genTreeFor(10);
+
+	</script>
+	</head>
+
+	<body>
+    <div style="position: fixed; top: 0; left: 0; z-index:1000">
+      <h1>Conjetura de Collatz</h1>
+      <input type="number" id="n">
+      <button onClick="genTreeFor(parseInt($('#n').val()))">Update</button>
+    </div>
+		<div id="cy"></div>
+
+	</body>
+
 </html>
