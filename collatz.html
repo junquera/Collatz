@@ -1,0 +1,36 @@
+<!-- Código para construir un árbol con los distintos términos obtenidos -->
+<html>
+  <head>
+    <script type="text/javascript">
+
+      var arbor = {"nodes":{}, "edges":{}};
+
+      function collatz(n){
+        if( n == 1){
+          return [n];
+        } else {
+          return [n].concat(collatz(n%2==0? n/2 : 3*n+1));
+        }
+      }
+
+      function addToArbor(collatz){
+        collatz.forEach((v, i)=>{
+          if(!arbor['nodes'][v]){
+          arbor['nodes'][v] = {};
+          if(collatz[i+1])
+            console.log(v, '->', collatz[i+1]);
+            if(arbor['edges'][v]){
+                arbor['edges'][v][collatz[i+1]] = { "weight": 1 };
+            } else {
+              arbor['edges'][v] = {};
+              arbor['edges'][v][collatz[i+1]] =  {"weight": 1} ;
+            }
+          }
+        });
+      }
+
+    </script>
+  </head>
+  <body>
+  </body>
+</html>
