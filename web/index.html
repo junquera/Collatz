@@ -1,0 +1,27 @@
+<!DOCTYPE>
+<html>
+	<head>
+    <!-- Based on https://gist.github.com/maxkfranz/e52c2fbc0b09edd6ec46 -->
+		<title>Collatz</title>
+		<meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1, maximum-scale=1">
+
+		<link rel="stylesheet" href="style.css">
+
+		<script src="http://code.jquery.com/jquery-2.0.3.min.js"></script>
+		<script src="http://js.cytoscape.org/api/cytoscape.js-latest/cytoscape.min.js"></script>
+
+		<script src="https://cdn.rawgit.com/cpettitt/dagre/v0.7.4/dist/dagre.min.js"></script>
+		<script src="https://cdn.rawgit.com/cytoscape/cytoscape.js-dagre/1.1.2/cytoscape-dagre.js"></script>
+
+		<script src="script.js"></script>
+
+	</head>
+	<body>
+    <div style="position: fixed; top: 0; left: 0; z-index:1000">
+      <h1>Conjetura de Collatz</h1>
+      <input type="number" id="n">
+      <button onClick="genTreeFor(parseInt($('#n').val()))">Update</button>
+    </div>
+		<div id="cy"></div>
+	</body>
+</html>
