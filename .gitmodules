@@ -1,0 +1,3 @@
+[submodule "c++/bigint"]
+	path = c++/bigint
+	url = git@github.com:junquera/C-Big-Integer-Library
